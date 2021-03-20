@@ -7,23 +7,63 @@ import Mybutton from './components/Mybutton';
 import Mytext from './components/Mytext';
 import {openDatabase} from 'react-native-sqlite-storage';
 
-import * as literals from '../utils/literals';
+import Literals from '../utils/literals';
+import {
+  getTable,
+  dropOnCondition,
+  createOnCondition,
+  generateInventoryDescription,
+  generateItemDescription,
+} from '../utils/sql';
 
-var db = openDatabase({name: 'UserDatabase.db'});
+var db = openDatabase({name: Literals.DB_NAME});
 
 const HomeScreen = ({navigation}) => {
+  /**
+   *  @description The Homescreen is the first page in the Application flow
+   *  and has to initialize the Databases on Mounting.
+   */
   useEffect(() => {
+    /* Initialize the Item Table */
+    db.transaction(function (txn) {
+      txn.executeSql(getTable(Literals.ITEM_TABLE), [], function (tx, res) {
+        if (res.rows.length == 0) {
+          txn.executeSql(
+            dropOnCondition(
+              [Literals.COND_EXISTS, Literals.ITEM_TABLE].join(' '),
+            ),
+            [],
+          );
+          txn.executeSql(
+            createOnCondition(
+              Literals.COND_NOT_EXISTS,
+              Literals.ITEM_TABLE,
+              generateItemDescription(),
+            ),
+            [],
+          );
+        }
+      });
+    });
+    /* Initialize the Inventory Table */
     db.transaction(function (txn) {
       txn.executeSql(
-        "SELECT name FROM sqlite_master WHERE type='table' AND name='table_user'",
+        getTable(Literals.INVENTORY_TABLE),
         [],
         function (tx, res) {
-          console.log('item:', res.rows.length);
-          console.log('Response', res);
           if (res.rows.length == 0) {
-            txn.executeSql('DROP TABLE IF EXISTS table_user', []);
             txn.executeSql(
-              'CREATE TABLE IF NOT EXISTS table_user(user_id INTEGER PRIMARY KEY AUTOINCREMENT, user_name VARCHAR(20), user_contact INT(10), user_address VARCHAR(255))',
+              dropOnCondition(
+                [Literals.COND_EXISTS, Literals.INVENTORY_TABLE].join(' '),
+              ),
+              [],
+            );
+            txn.executeSql(
+              createOnCondition(
+                Literals.COND_NOT_EXISTS,
+                Literals.INVENTORY_TABLE,
+                generateInventoryDescription(),
+              ),
               [],
             );
           }
@@ -38,7 +78,7 @@ const HomeScreen = ({navigation}) => {
         <View style={{flex: 1}}>
           <Mytext text="SQLite Example" />
           <Mybutton
-            title="Register"
+            title="Items"
             customClick={() => navigation.navigate('Register')}
           />
           <Mybutton
