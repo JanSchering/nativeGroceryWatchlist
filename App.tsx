@@ -9,11 +9,8 @@ import {NavigationContainer} from '@react-navigation/native';
 import {createStackNavigator} from '@react-navigation/stack';
 
 import HomeScreen from './pages/HomeScreen';
-import RegisterUser from './pages/RegisterUser';
-import UpdateUser from './pages/UpdateUser';
-import ViewUser from './pages/ViewUser';
-import ViewAllUser from './pages/ViewAllUser';
-import DeleteUser from './pages/DeleteUser';
+import CreateItem from './pages/CreateItem';
+import Inventory from './pages/Inventory';
 
 const Stack = createStackNavigator();
 
@@ -36,10 +33,10 @@ const App = () => {
           }}
         />
         <Stack.Screen
-          name="View"
-          component={ViewUser}
+          name="CreateItem"
+          component={CreateItem}
           options={{
-            title: 'View User', //Set Header Title
+            title: 'Create Item', //Set Header Title
             headerStyle: {
               backgroundColor: '#f4511e', //Set Header color
             },
@@ -50,52 +47,10 @@ const App = () => {
           }}
         />
         <Stack.Screen
-          name="ViewAll"
-          component={ViewAllUser}
+          name="Inventory"
+          component={Inventory}
           options={{
-            title: 'View Users', //Set Header Title
-            headerStyle: {
-              backgroundColor: '#f4511e', //Set Header color
-            },
-            headerTintColor: '#fff', //Set Header text color
-            headerTitleStyle: {
-              fontWeight: 'bold', //Set Header text style
-            },
-          }}
-        />
-        <Stack.Screen
-          name="Update"
-          component={UpdateUser}
-          options={{
-            title: 'Update User', //Set Header Title
-            headerStyle: {
-              backgroundColor: '#f4511e', //Set Header color
-            },
-            headerTintColor: '#fff', //Set Header text color
-            headerTitleStyle: {
-              fontWeight: 'bold', //Set Header text style
-            },
-          }}
-        />
-        <Stack.Screen
-          name="Register"
-          component={RegisterUser}
-          options={{
-            title: 'Register User', //Set Header Title
-            headerStyle: {
-              backgroundColor: '#f4511e', //Set Header color
-            },
-            headerTintColor: '#fff', //Set Header text color
-            headerTitleStyle: {
-              fontWeight: 'bold', //Set Header text style
-            },
-          }}
-        />
-        <Stack.Screen
-          name="Delete"
-          component={DeleteUser}
-          options={{
-            title: 'Delete User', //Set Header Title
+            title: 'Inventory', //Set Header Title
             headerStyle: {
               backgroundColor: '#f4511e', //Set Header color
             },

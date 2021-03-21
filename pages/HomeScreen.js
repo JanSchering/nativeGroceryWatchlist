@@ -16,7 +16,8 @@ import {
   generateItemDescription,
 } from '../utils/sql';
 
-var db = openDatabase({name: Literals.DB_NAME});
+console.log('DB NAME', Literals.DB_NAME);
+var db = openDatabase(Literals.DB_NAME);
 
 const HomeScreen = ({navigation}) => {
   /**
@@ -25,9 +26,13 @@ const HomeScreen = ({navigation}) => {
    */
   useEffect(() => {
     /* Initialize the Item Table */
-    db.transaction(function (txn) {
-      txn.executeSql(getTable(Literals.ITEM_TABLE), [], function (tx, res) {
+    db.transaction(txn => {
+      console.log('INIT');
+      const tableQuery = getTable(Literals.ITEM_TABLE);
+      txn.executeSql(tableQuery, [], (tx, res) => {
+        console.log(res.rows.item(0));
         if (res.rows.length == 0) {
+          console.log('RES');
           txn.executeSql(
             dropOnCondition(
               [Literals.COND_EXISTS, Literals.ITEM_TABLE].join(' '),
@@ -46,29 +51,34 @@ const HomeScreen = ({navigation}) => {
       });
     });
     /* Initialize the Inventory Table */
-    db.transaction(function (txn) {
-      txn.executeSql(
-        getTable(Literals.INVENTORY_TABLE),
-        [],
-        function (tx, res) {
-          if (res.rows.length == 0) {
-            txn.executeSql(
-              dropOnCondition(
-                [Literals.COND_EXISTS, Literals.INVENTORY_TABLE].join(' '),
-              ),
-              [],
-            );
-            txn.executeSql(
-              createOnCondition(
-                Literals.COND_NOT_EXISTS,
-                Literals.INVENTORY_TABLE,
-                generateInventoryDescription(),
-              ),
-              [],
-            );
-          }
-        },
-      );
+    db.transaction(txn => {
+      txn.executeSql(getTable(Literals.INVENTORY_TABLE), [], (tx, res) => {
+        console.log('init inventory');
+        if (res.rows.length == 0) {
+          console.log('no rows in inventory', res);
+          const dropQuery = dropOnCondition(
+            [Literals.COND_EXISTS, Literals.INVENTORY_TABLE].join(' '),
+          );
+          console.log('drop Query', dropQuery);
+          txn.executeSql(dropQuery, []);
+          const createQuery = createOnCondition(
+            Literals.COND_NOT_EXISTS,
+            Literals.INVENTORY_TABLE,
+            generateInventoryDescription(),
+          );
+          console.log('create Query', createQuery);
+          txn.executeSql(
+            createQuery,
+            [],
+            (tx, res) => {
+              console.log('Response', res);
+            },
+            (tx, err) => {
+              console.log('Error creating table:', tx, err);
+            },
+          );
+        }
+      });
     });
   }, []);
 
@@ -76,44 +86,16 @@ const HomeScreen = ({navigation}) => {
     <SafeAreaView style={{flex: 1}}>
       <View style={{flex: 1, backgroundColor: 'white'}}>
         <View style={{flex: 1}}>
-          <Mytext text="SQLite Example" />
+          <Mytext text="Grocery Watchlist" />
           <Mybutton
-            title="Items"
-            customClick={() => navigation.navigate('Register')}
+            title="Inventory"
+            customClick={() => navigation.navigate('Inventory')}
           />
           <Mybutton
-            title="Update"
-            customClick={() => navigation.navigate('Update')}
-          />
-          <Mybutton
-            title="View"
-            customClick={() => navigation.navigate('View')}
-          />
-          <Mybutton
-            title="View All"
-            customClick={() => navigation.navigate('ViewAll')}
-          />
-          <Mybutton
-            title="Delete"
-            customClick={() => navigation.navigate('Delete')}
+            title="Create Item"
+            customClick={() => navigation.navigate('CreateItem')}
           />
         </View>
-        <Text
-          style={{
-            fontSize: 18,
-            textAlign: 'center',
-            color: 'grey',
-          }}>
-          Example of SQLite Database in React Native
-        </Text>
-        <Text
-          style={{
-            fontSize: 16,
-            textAlign: 'center',
-            color: 'grey',
-          }}>
-          www.aboutreact.com
-        </Text>
       </View>
     </SafeAreaView>
   );
